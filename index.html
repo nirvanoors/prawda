@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lobby - Wybór Poziomów</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .site-header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+        }
+
+        .level {
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            width: 120px;
+            margin: 10px;
+        }
+
+        .level img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .locked {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1>Wybierz Poziom Gry</h1>
+    </header>
+    <main>
+        <div class="level-selector">
+            <div class="row">
+                <div class="level">
+                   <a href="https://nirvanoors.github.io/prawda/">
+                        <img src="path/to/level1_image.jpg" alt="Poziom 1">
+                    </a>
+                
+                </div>
+                <div class="level locked">
+                    <a href="#">
+                        <img src="path/to/level2_image.jpg" alt="Zablokowany Poziom">
+                    </a>
+                </div>
+                <div class="level locked">
+                    <a href="#">
+                        <img src="path/to/locked_image.jpg" alt="Zablokowany Poziom">
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="level locked">
+                    <a href="#">
+                        <img src="path/to/locked_image.jpg" alt="Zablokowany Poziom">
+                    </a>
+                </div>
+                <div class="level locked">
+                    <a href="#">
+                        <img src="path/to/locked_image.jpg" alt="Zablokowany Poziom">
+                    </a>
+                </div>
+                <div class="level locked">
+                    <a href="#">
+                        <img src="path/to/locked_image.jpg" alt="Zablokowany Poziom">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Twoja Strona</p>
+    </footer>
+</body>
+</html>
