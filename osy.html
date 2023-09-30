@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shooting Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        .model {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #00ff00;
+            cursor: pointer;
+        }
+		
+		 body {
+			background-image: url('https://ud.interia.pl/html/getattach,mid,3228,mpid,6,mlid,-1,uid,ea68fb9279cc58a9?f=inline')
+			background-size: cover;
+			background-repeat: no-repeat;
+		}
+	  
+        .obstacle {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: url(https://i0.wp.com/insektarium.net/wp-content/uploads/2014/04/567.jpg?ssl=1;
+			background-size: cover;
+            background-position: center;
+            cursor: pointer;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: black;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="timer">Timer: 90</div>
+    </div>
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const timerElement = document.getElementById('timer');
+        let timeLeft = 90;
+        let score = 0;
+        let maxModels = 10;
+        let modelInterval = 3000;
+        let isGameOver = false;
+        let pairModelsEnabled = false;
+        let timerInterval;
+        let resetInterval;
+
+        gameContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('model') && !isGameOver) {
+                e.target.remove();
+                score++;
+            } else if (e.target.classList.contains('obstacle') && !isGameOver) {
+                clearInterval(timerInterval);
+                alert(`O nie! zabiłeś Jokera.`);
+                resetGame();
+                startGame();
+            }
+        });
+
+        function createModel() {
+            const models = gameContainer.querySelectorAll('.model');
+            if (!isGameOver && models.length < maxModels) {
+                const model = document.createElement('div');
+                model.classList.add('model');
+                model.style.left = `${Math.random() * 90 + 5}%`;
+                model.style.top = `${Math.random() * 40 + 20}%`;
+				
+				const images = ['https://zdjecia.interia.pl/img,gcsi,6b0a3D7b585e50a6761Ec5D94f94b48632e1634d,mpid,7,maxwidth,1868.75,maxheight,932.5','https://zdjecia.interia.pl/img,gcsi,6b0a3D7b585e50a6761Ec5D94f94b48632e1634d,mpid,8,maxwidth,1868.75,maxheight,932.5','https://zdjecia.interia.pl/img,gcsi,6b0a3D7b585e50a6761Ec5D94f94b48632e1634d,mpid,9,maxwidth,1868.75,maxheight,932.5','https://zdjecia.interia.pl/img,gcsi,6b0a3D7b585e50a6761Ec5D94f94b48632e1634d,mpid,10,maxwidth,1868.75,maxheight,932.5'];
+                const randomImage = images[Math.floor(Math.random() * images.length)];
+                model.style.backgroundImage = `url('${randomImage}')`;
+                model.style.backgroundSize = 'cover';
+                model.style.backgroundPosition = 'center';
+
+                gameContainer.appendChild(model);
+            }
+            if (models.length === maxModels) {
+                isGameOver = true;
+                clearInterval(timerInterval);
+                alert(`Osy zeżarły twoje płatki z mlekiem!`);
+                resetGame();
+                startGame();
+            }
+        }
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.style.left = `${Math.random() * 90 + 5}%`;
+            obstacle.style.top = `${Math.random() * 40 + 20}%`;
+            gameContainer.appendChild(obstacle);
+
+            setTimeout(() => {
+                obstacle.remove();
+            }, 2000);
+        }
+
+        function decreaseModelInterval() {
+            if (modelInterval > 500) {
+                modelInterval -= 100;
+            }
+        }
+
+        function resetGame() {
+            timeLeft = 90;
+            score = 0;
+            isGameOver = false;
+            maxModels = 10;
+            modelInterval = 3000;
+            timerElement.textContent = `Timer: ${timeLeft}`;
+            const models = gameContainer.querySelectorAll('.model');
+            const obstacles = gameContainer.querySelectorAll('.obstacle');
+            models.forEach((model) => {
+                model.remove();
+            });
+            obstacles.forEach((obstacle) => {
+                obstacle.remove();
+            });
+            clearInterval(resetInterval);
+            pairModelsEnabled = false;
+            clearInterval(timerInterval);
+        }
+
+        function startGame() {
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = `Timer: ${timeLeft}`;
+
+        if (isGameOver) {
+            return;
+        }
+
+        if (timeLeft === 80) {
+            pairModelsEnabled = true;
+        }
+
+        if (pairModelsEnabled) {
+            createModel();
+            createModel();
+        } else {
+            createModel();
+        }
+
+        if (timeLeft === 0 && !isGameOver) {
+            isGameOver = true;
+            clearInterval(timerInterval);
+            alert(`Gratulacje, udało ci się przeżyć dzień w Jarosławcu!: ${score}`);
+
+            // Przekierowanie gracza do pliku win.html po wygranej
+            if (score >= 10) {  // Warunek wygranej (zmień na odpowiedni)
+                window.location.href = 'index2.html';
+            } else {
+                resetGame();
+            }
+        }
+
+        if (Math.random() < 0.125) {
+            createObstacle();
+        }
+    }, 1000);
+}
+
+        startGame();
+    </script>
+</body>
+</html>
