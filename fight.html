@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gra z Grawitacją, Skokiem i Szybszymi Przeszkodami</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+            background: url('') no-repeat center/cover;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+			background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157580367797157918/to.png?ex=6519203a&is=6517ceba&hm=b701cfd00e6b72d4011b3a88076687e23c9fe2f53e260e93c4ea79a989198789&') no-repeat center/cover;
+        }
+
+
+        .player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+			background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157438388815794247/IMG_0720.jpg?ex=65189c00&is=65174a80&hm=8439475db496227276a3fe47f4b78124e9853e46e19d1ab8868ae5155ae06797&') no-repeat center/cover;
+		}
+
+        .ground {
+            position: absolute;
+            width: 100vw;
+            height: 150px;
+            background-color: #8B4513;
+            bottom: 0;
+        }
+
+        .obstacle {
+            position: absolute;
+			background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157443411452895242/peratda2.png?ex=6518a0ad&is=65174f2d&hm=f15af027d2a1d31b420a774199c651f0ddbfb1ae35543fadc9b26d4f52f610cf&') no-repeat center/cover;
+        }
+
+        .powerup {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+			background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157460720892514424/romper.png?ex=6518b0cc&is=65175f4c&hm=c5f42a231149411d44af6ee330509ac22672b6db3c23271d23d938d4af4bfa22&') no-repeat center/cover;
+       	   }		
+	</style>
+</head>
+<body>
+    <h1>Gra z Grawitacją, Skokiem i Szybszymi Przeszkodami</h1>
+    <div class="game-container">
+        <div class="player" id="player"></div>
+        <div class="ground"></div>
+    </div>
+    <div id="timer" style="position: absolute; top: 10px; right: 10px; font-size: 24px;"></div>
+    <script>
+        const player = document.getElementById("player");
+
+        const gameWidth = document.querySelector(".game-container").clientWidth;
+        const gameHeight = document.querySelector(".game-container").clientHeight;
+
+        const playerSpeed = 8;
+        const playerSize = 50;
+        const gravity = 0.3;
+
+        let playerPosition = { x: gameWidth / 2 - playerSize / 2, y: gameHeight / 2 - playerSize / 2 };
+        let isJumping = false;
+        let jumpStartY = 0;
+        let verticalVelocity = 0;
+
+        let obstacles = [];
+        let powerups = [];
+        let isTouchingGround = false;
+
+         let obstacleGravity = gravity * 2;
+        let obstacleSpeedIncrease = 0.05;
+        let obstacleSpeedIncreaseInterval = 6000;
+        let lastSpeedIncreaseTime = Date.now();
+
+        let obstacleSpawnProbability = 0.16;
+        let obstacleSpawnInterval = 250;
+        let lastObstacleSpawnTime = Date.now();
+
+        let specialObstacleSpawnInterval = 10000;
+        let lastSpecialObstacleSpawnTime = Date.now();
+
+        let powerupSpawnInterval = 10000;
+        let lastPowerupSpawnTime = Date.now();
+
+        let speedAndFrequencyIncrease = false;
+        let speedAndFrequencyIncrease2 = false;
+        let speedAndFrequencyIncrease3 = false;
+        let powerupActive = false;
+        let powerupDuration = 3000;
+        let powerupStartTime = 0;
+
+        let startTime = Date.now();
+
+        function createObstacle(x, sizeMultiplier) {
+            const obstacle = document.createElement("div");
+            obstacle.className = "obstacle";
+            obstacle.style.left = x + "px";
+            obstacle.style.top = "0";
+            obstacle.style.width = (20 * sizeMultiplier) + "px";
+            obstacle.style.height = (20 * sizeMultiplier) + "px";
+            obstacles.push(obstacle);
+            document.querySelector(".game-container").appendChild(obstacle);
+        }
+
+        function createSpecialObstacle(x, widthMultiplier, heightMultiplier) {
+            const specialObstacle = document.createElement("div");
+            specialObstacle.className = "obstacle";
+            specialObstacle.style.left = x + "px";
+            specialObstacle.style.top = "0";
+            specialObstacle.style.width = (20 * widthMultiplier) + "px"; // Długość
+            specialObstacle.style.height = (20 * heightMultiplier) + "px"; // Wysokość
+            obstacles.push(specialObstacle);
+            document.querySelector(".game-container").appendChild(specialObstacle);
+        }
+
+        function createPowerup(x) {
+            const powerup = document.createElement("div");
+            powerup.className = "powerup";
+            powerup.style.left = x + "px";
+            powerup.style.top = "0";
+            powerups.push(powerup);
+            document.querySelector(".game-container").appendChild(powerup);
+        }
+
+        function updatePositions() {
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - startTime;
+
+            if (elapsedTime >= 30000 && !speedAndFrequencyIncrease) {
+                obstacleGravity *= 1.5;
+                obstacleSpeedIncreaseInterval /= 1.5;
+                obstacleSpawnProbability *= 1.5;
+                obstacleSpawnInterval /= 1.5;
+                speedAndFrequencyIncrease = true;
+            }
+
+            if (elapsedTime >= 30000 && speedAndFrequencyIncrease && !speedAndFrequencyIncrease2) {
+                obstacleSpawnProbability *= 1.5;
+                obstacleSpawnInterval /= 1.5;
+                obstacleSpeedIncrease *= 1.3;
+                speedAndFrequencyIncrease2 = true;
+            }
+
+            if (elapsedTime >= 10000 && currentTime - lastSpecialObstacleSpawnTime > specialObstacleSpawnInterval) {
+                createSpecialObstacle(Math.random() * (gameWidth - (20 * 5)), 3, 7); // Długość 3, wysokość 7
+                lastSpecialObstacleSpawnTime = currentTime;
+            }
+
+            if (elapsedTime >= 30000 && currentTime - lastSpecialObstacleSpawnTime > specialObstacleSpawnInterval && !speedAndFrequencyIncrease3) {
+                if (Math.random() < 0.2) {
+                    createSpecialObstacle(Math.random() * (gameWidth - (20 * 3)), 3, 7);
+                    lastSpecialObstacleSpawnTime = currentTime;
+                }
+            }
+
+            if (!powerupActive && currentTime - lastPowerupSpawnTime > powerupSpawnInterval) {
+                createPowerup(Math.random() * (gameWidth - 20));
+                lastPowerupSpawnTime = currentTime;
+            }
+
+            if (isJumping) {
+                // ... (jak wcześniej)
+            } else {
+                // Sprawdź kolizję z ziemią
+                if (playerPosition.y > gameHeight - playerSize - 150) {
+                    playerPosition.y = gameHeight - playerSize - 150;
+                    verticalVelocity = 0;
+                    isJumping = false;
+                    isTouchingGround = true;
+                }
+
+                if (playerPosition.y < gameHeight - playerSize) {
+                    verticalVelocity += gravity;
+                    playerPosition.y += verticalVelocity;
+                } else {
+                    playerPosition.y = gameHeight - playerSize;
+                    verticalVelocity = 0;
+                    isJumping = false;
+                    isTouchingGround = true;
+                }
+            }
+
+            if (isTouchingGround) {
+                if (Math.random() < obstacleSpawnProbability && currentTime - lastObstacleSpawnTime > obstacleSpawnInterval) {
+                    createObstacle(Math.random() * (gameWidth - 20), 1);
+                    lastObstacleSpawnTime = currentTime;
+                }
+
+                for (let i = 0; i < obstacles.length; i++) {
+                    const obstacle = obstacles[i];
+                    const obstacleTop = parseFloat(obstacle.style.top);
+                    if (obstacleTop < gameHeight - 20) {
+                        obstacle.style.top = obstacleTop + obstacleGravity + "px";
+                    }
+
+                    const obstacleLeft = parseFloat(obstacle.style.left);
+                    const obstacleRight = obstacleLeft + parseFloat(obstacle.style.width);
+                    const obstacleTopBound = obstacleTop;
+                    const obstacleBottomBound = obstacleTop + parseFloat(obstacle.style.height);
+
+                    if (
+                        playerPosition.x + playerSize > obstacleLeft &&
+                        playerPosition.x < obstacleRight &&
+                        playerPosition.y + playerSize > obstacleTopBound &&
+                        playerPosition.y < obstacleBottomBound
+                    ) {
+                        if (powerupActive) {
+                            obstacles.splice(i, 1);
+                            obstacle.remove();
+                        } else {
+                            gameOver();
+                        }
+                    }
+                }
+
+                for (let i = 0; i < powerups.length; i++) {
+                    const powerup = powerups[i];
+                    const powerupTop = parseFloat(powerup.style.top);
+                    if (powerupTop < gameHeight - 20) {
+                        powerup.style.top = powerupTop + obstacleGravity + "px";
+                    }
+
+                    const powerupLeft = parseFloat(powerup.style.left);
+                    const powerupRight = powerupLeft + parseFloat(powerup.style.width);
+                    const powerupTopBound = powerupTop;
+                    const powerupBottomBound = powerupTop + parseFloat(powerup.style.height);
+
+                    if (
+                        playerPosition.x + playerSize > powerupLeft &&
+                        playerPosition.x < powerupRight &&
+                        playerPosition.y + playerSize > powerupTopBound &&
+                        playerPosition.y < powerupBottomBound
+                    ) {
+                        activatePowerup();
+                        powerup.remove();
+                    }
+                }
+            }
+
+            if (powerupActive && currentTime - powerupStartTime > powerupDuration) {
+                deactivatePowerup();
+            }
+
+            player.style.transform = `translate(${playerPosition.x}px, ${playerPosition.y}px)`;
+
+            requestAnimationFrame(updatePositions);
+        }
+
+        function gameOver() {
+            alert("Koniec gry!");
+            resetGame();
+        }
+
+        function activatePowerup() {
+            powerupActive = true;
+            powerupStartTime = Date.now();
+            playerSpeed *= 1.5; // Zwiększenie prędkości poruszania się gracza
+        }
+
+        function deactivatePowerup() {
+            powerupActive = false;
+            playerSpeed /= 1.5; // Przywrócenie normalnej prędkości poruszania się gracza
+        }
+
+        function resetGame() {
+            for (const obstacle of obstacles) {
+                obstacle.parentNode.removeChild(obstacle);
+            }
+            for (const powerup of powerups) {
+                powerup.parentNode.removeChild(powerup);
+            }
+            obstacles = [];
+            powerups = [];
+            playerPosition = { x: gameWidth / 2 - playerSize / 2, y: gameHeight / 2 - playerSize / 2 };
+            isTouchingGround = false;
+            obstacleGravity = gravity * 2;
+            obstacleSpeedIncrease = 0.05;
+            obstacleSpeedIncreaseInterval = 6000;
+            lastSpeedIncreaseTime = Date.now();
+            obstacleSpawnProbability = 0.16;
+            obstacleSpawnInterval = 250;
+            lastObstacleSpawnTime = Date.now();
+            lastSpecialObstacleSpawnTime = Date.now();
+            speedAndFrequencyIncrease = false;
+            speedAndFrequencyIncrease2 = false;
+            speedAndFrequencyIncrease3 = false;
+            powerupSpawnInterval = 10000;
+            lastPowerupSpawnTime = Date.now();
+            powerupActive = false;
+            powerupDuration = 3000;
+            powerupStartTime = 0;
+            startTime = Date.now();
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft" && playerPosition.x > 0) {
+                playerPosition.x -= playerSpeed;
+            } else if (event.key === "ArrowRight" && playerPosition.x < gameWidth - playerSize) {
+                playerPosition.x += playerSpeed;
+            } else if ((event.key === "p" || event.key === "ArrowUp") && playerPosition.y >= gameHeight - playerSize) {
+                jump();
+            }
+        });
+
+        function jump() {
+            if (!isJumping) {
+                isJumping = true;
+                jumpStartY = playerPosition.y;
+                verticalVelocity = -8;
+            }
+        }
+
+        
+        let victoryTime = 90000; // 90 sekund
+        let victoryAchieved = false;
+
+        function updateTimer() {
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - startTime;
+
+            if (elapsedTime >= victoryTime && !victoryAchieved) {
+                victoryAchieved = true;
+                showVictory();
+            }
+
+            const remainingTime = Math.max(0, victoryTime - elapsedTime);
+            const seconds = Math.floor(remainingTime / 1000);
+            const milliseconds = remainingTime % 1000;
+
+            document.getElementById("timer").textContent = `Pozostały czas: ${seconds}.${milliseconds} s`;
+
+            requestAnimationFrame(updateTimer);
+        }
+
+        function showVictory() {
+            alert("Gratulacje! Wygrałeś!");
+            window.location.href = 'jajko.html'; // Zmień na odpowiednią ścieżkę do pliku docelowego po wygranej
+        }
+
+        updatePositions();
+        updateTimer();
+    </script>
+</body>
+</html>
