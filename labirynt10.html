@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prosta Gra Labirynt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        
+        .maze {
+            display: grid;
+            grid-gap: 0; /* Usunięcie odstępu między pikselami */
+            margin: 40px auto; /* Zwiększenie marginesu */
+        }
+        
+        .cell {
+            width: 40px; /* Rozmiar komórki */
+            height: 40px; /* Rozmiar komórki */
+            border: 2px solid #ccc; /* Grubość obramowania */
+        }
+        
+        /* Zwiększenie rozmiaru obrazów dla każdego elementu */
+        .player {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,9,maxwidth,1868.75,maxheight,932.5);
+        }
+        
+        .wall {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,12,maxwidth,1868.75,maxheight,932.5);
+        }
+        
+        .goal {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,7,maxwidth,1868.75,maxheight,932.5);
+        }
+        
+        .trap-pink {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,10,maxwidth,1868.75,maxheight,932.5);
+        }
+        
+        .trap-yellow {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,8,maxwidth,1868.75,maxheight,932.5);
+        }
+        
+        .trap-red {
+            background-size: cover;
+            background-image: url(https://zdjecia.interia.pl/img,gcsi,2ee38311EeCa7E59B96DeeF7706896Abdbc48059,mpid,11,maxwidth,1868.75,maxheight,932.5);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="maze" id="maze"></div>
+
+    <script>
+        const maze = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1]
+        ];
+
+        const mazeDiv = document.getElementById("maze");
+        const cellSize = 40;
+
+        mazeDiv.style.gridTemplateColumns = `repeat(${maze[0].length}, ${cellSize}px)`;
+
+        for (let i = 0; i < maze.length; i++) {
+            for (let j = 0; j < maze[i].length; j++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                if (maze[i][j] === 1) {
+                    cell.classList.add("wall");
+                } else if (maze[i][j] === 2) {
+                    cell.classList.add("player");
+                } else if (maze[i][j] === 3) {
+                    cell.classList.add("goal");
+                } else if (maze[i][j] === 4) {
+                    cell.classList.add("trap-pink");
+                } else if (maze[i][j] === 5) {
+                    cell.classList.add("trap-yellow");
+                } else if (maze[i][j] === 6) {
+                    cell.classList.add("trap-red");
+                }
+                mazeDiv.appendChild(cell);
+            }
+        }
+
+        const cells = document.querySelectorAll(".cell");
+        let playerPosition = [1, 1];
+        let trapPosition = [maze.length - 2, maze[0].length - 2];
+        let pinkTrapPosition = [1, maze[0].length - 2];
+        let yellowTrapPosition = [maze.length - 2, 1];
+        let redTrapPosition = [1, 1];
+        let goalPosition = [maze.length - 2, maze[0].length - 2];
+
+        const movePlayer = (event) => {
+            const newPosition = [...playerPosition]; 
+
+            if (event.key === "ArrowLeft") {
+                newPosition[1] -= 1;
+            } else if (event.key === "ArrowRight") {
+                newPosition[1] += 1;
+            } else if (event.key === "ArrowUp") {
+                newPosition[0] -= 1;
+            } else if (event.key === "ArrowDown") {
+                newPosition[0] += 1;
+            }
+
+            if (
+                newPosition[0] >= 0 && newPosition[0] < maze.length &&
+                newPosition[1] >= 0 && newPosition[1] < maze[0].length &&
+                maze[newPosition[0]][newPosition[1]] !== 1
+            ) {
+                if (newPosition[0] === trapPosition[0] && newPosition[1] === trapPosition[1]) {
+                    resetPlayerPosition();
+                } else if (newPosition[0] === pinkTrapPosition[0] && newPosition[1] === pinkTrapPosition[1]) {
+                    alert("Adler siema... Sperdalaj.");
+                    resetPlayerPosition();
+                } else if (newPosition[0] === yellowTrapPosition[0] && newPosition[1] === yellowTrapPosition[1]) {
+                    alert("OO Adler! WPROSIĆ WPROSIĆ ZAPROIŚĆ HEHHEHHEHEHHEHE.");
+                    resetPlayerPosition();
+                } else if (newPosition[0] === redTrapPosition[0] && newPosition[1] === redTrapPosition[1]) {
+                    alert("SIEMA ZIOMEK HUBERTA! Słuchaj robimy trade'a ja ci dam 100 zł a ty mi dasz 100 zł. OK...");
+                    resetPlayerPosition();
+                } else if (maze[newPosition[0]][newPosition[1]] === 3) {
+                    alert("Gratulacje! Udało ci się kupić pysznego wrapika!");
+                    window.location.href = "index2.html";
+                } else {
+                    cells[playerPosition[0] * maze[0].length + playerPosition[1]].classList.remove("player");
+                    playerPosition = newPosition;
+                    cells[playerPosition[0] * maze[0].length + playerPosition[1]].classList.add("player");
+                }
+            }
+        };
+
+        const resetPlayerPosition = () => {
+            cells[playerPosition[0] * maze[0].length + playerPosition[1]].classList.remove("player");
+            playerPosition = [1, 1];
+            cells[playerPosition[0] * maze[0].length + playerPosition[1]].classList.add("player");
+        };
+
+        const moveTrap = () => {
+            const newTrapPosition = [...trapPosition];
+            const randomDirection = Math.floor(Math.random() * 4);
+
+            if (randomDirection === 0 && maze[newTrapPosition[0]][newTrapPosition[1] - 1] !== 1) {
+                newTrapPosition[1] -= 1;
+            } else if (randomDirection === 1 && maze[newTrapPosition[0]][newTrapPosition[1] + 1] !== 1) {
+                newTrapPosition[1] += 1;
+            } else if (randomDirection === 2 && maze[newTrapPosition[0] - 1][newTrapPosition[1]] !== 1) {
+                newTrapPosition[0] -= 1;
+            } else if (randomDirection === 3 && maze[newTrapPosition[0] + 1][newTrapPosition[1]] !== 1) {
+                newTrapPosition[0] += 1;
+            }
+
+            if (
+                (newTrapPosition[0] !== goalPosition[0] || newTrapPosition[1] !== goalPosition[1]) &&
+                (newTrapPosition[0] !== playerPosition[0] || newTrapPosition[1] !== playerPosition[1]) &&
+                (newTrapPosition[0] !== pinkTrapPosition[0] || newTrapPosition[1] !== pinkTrapPosition[1]) &&
+                (newTrapPosition[0] !== yellowTrapPosition[0] || newTrapPosition[1] !== yellowTrapPosition[1]) &&
+                (newTrapPosition[0] !== redTrapPosition[0] || newTrapPosition[1] !== redTrapPosition[1])
+            ) {
+                cells[trapPosition[0] * maze[0].length + trapPosition[1]].classList.remove("trap-pink");
+                trapPosition = newTrapPosition;
+                cells[trapPosition[0] * maze[0].length + trapPosition[1]].classList.add("trap-pink");
+            }
+
+            const newPinkTrapPosition = [...pinkTrapPosition];
+            const pinkRandomDirection = Math.floor(Math.random() * 4);
+
+            if (pinkRandomDirection === 0 && maze[newPinkTrapPosition[0]][newPinkTrapPosition[1] - 1] !== 1) {
+                newPinkTrapPosition[1] -= 1;
+            } else if (pinkRandomDirection === 1 && maze[newPinkTrapPosition[0]][newPinkTrapPosition[1] + 1] !== 1) {
+                newPinkTrapPosition[1] += 1;
+            } else if (pinkRandomDirection === 2 && maze[newPinkTrapPosition[0] - 1][newPinkTrapPosition[1]] !== 1) {
+                newPinkTrapPosition[0] -= 1;
+            } else if (pinkRandomDirection === 3 && maze[newPinkTrapPosition[0] + 1][newPinkTrapPosition[1]] !== 1) {
+                newPinkTrapPosition[0] += 1;
+            }
+
+            if (
+                (newPinkTrapPosition[0] !== goalPosition[0] || newPinkTrapPosition[1] !== goalPosition[1]) &&
+                (newPinkTrapPosition[0] !== playerPosition[0] || newPinkTrapPosition[1] !== playerPosition[1]) &&
+                (newPinkTrapPosition[0] !== trapPosition[0] || newPinkTrapPosition[1] !== trapPosition[1]) &&
+                (newPinkTrapPosition[0] !== yellowTrapPosition[0] || newPinkTrapPosition[1] !== yellowTrapPosition[1]) &&
+                (newPinkTrapPosition[0] !== redTrapPosition[0] || newPinkTrapPosition[1] !== redTrapPosition[1])
+            ) {
+                cells[pinkTrapPosition[0] * maze[0].length + pinkTrapPosition[1]].classList.remove("trap-pink");
+                pinkTrapPosition = newPinkTrapPosition;
+                cells[pinkTrapPosition[0] * maze[0].length + pinkTrapPosition[1]].classList.add("trap-pink");
+            }
+
+            const newYellowTrapPosition = [...yellowTrapPosition];
+            const yellowRandomDirection = Math.floor(Math.random() * 4);
+
+            if (yellowRandomDirection === 0 && maze[newYellowTrapPosition[0]][newYellowTrapPosition[1] - 1] !== 1) {
+                newYellowTrapPosition[1] -= 1;
+            } else if (yellowRandomDirection === 1 && maze[newYellowTrapPosition[0]][newYellowTrapPosition[1] + 1] !== 1) {
+                newYellowTrapPosition[1] += 1;
+            } else if (yellowRandomDirection === 2 && maze[newYellowTrapPosition[0] - 1][newYellowTrapPosition[1]] !== 1) {
+                newYellowTrapPosition[0] -= 1;
+            } else if (yellowRandomDirection === 3 && maze[newYellowTrapPosition[0] + 1][newYellowTrapPosition[1]] !== 1) {
+                newYellowTrapPosition[0] += 1;
+            }
+
+            if (
+                (newYellowTrapPosition[0] !== goalPosition[0] || newYellowTrapPosition[1] !== goalPosition[1]) &&
+                (newYellowTrapPosition[0] !== playerPosition[0] || newYellowTrapPosition[1] !== playerPosition[1]) &&
+                (newYellowTrapPosition[0] !== trapPosition[0] || newYellowTrapPosition[1] !== trapPosition[1]) &&
+                (newYellowTrapPosition[0] !== pinkTrapPosition[0] || newYellowTrapPosition[1] !== pinkTrapPosition[1]) &&
+                (newYellowTrapPosition[0] !== redTrapPosition[0] || newYellowTrapPosition[1] !== redTrapPosition[1])
+            ) {
+                cells[yellowTrapPosition[0] * maze[0].length + yellowTrapPosition[1]].classList.remove("trap-yellow");
+                yellowTrapPosition = newYellowTrapPosition;
+                cells[yellowTrapPosition[0] * maze[0].length + yellowTrapPosition[1]].classList.add("trap-yellow");
+            }
+
+            const newRedTrapPosition = [...redTrapPosition];
+            const redRandomDirection = Math.floor(Math.random() * 4);
+
+            if (redRandomDirection === 0 && maze[newRedTrapPosition[0]][newRedTrapPosition[1] - 1] !== 1) {
+                newRedTrapPosition[1] -= 1;
+            } else if (redRandomDirection === 1 && maze[newRedTrapPosition[0]][newRedTrapPosition[1] + 1] !== 1) {
+                newRedTrapPosition[1] += 1;
+            } else if (redRandomDirection === 2 && maze[newRedTrapPosition[0] - 1][newRedTrapPosition[1]] !== 1) {
+                newRedTrapPosition[0] -= 1;
+            } else if (redRandomDirection === 3 && maze[newRedTrapPosition[0] + 1][newRedTrapPosition[1]] !== 1) {
+                newRedTrapPosition[0] += 1;
+            }
+
+            if (
+                (newRedTrapPosition[0] !== goalPosition[0] || newRedTrapPosition[1] !== goalPosition[1]) &&
+                (newRedTrapPosition[0] !== playerPosition[0] || newRedTrapPosition[1] !== playerPosition[1]) &&
+                (newRedTrapPosition[0] !== trapPosition[0] || newRedTrapPosition[1] !== trapPosition[1]) &&
+                (newRedTrapPosition[0] !== pinkTrapPosition[0] || newRedTrapPosition[1] !== pinkTrapPosition[1]) &&
+                (newRedTrapPosition[0] !== yellowTrapPosition[0] || newRedTrapPosition[1] !== yellowTrapPosition[1])
+            ) {
+                cells[redTrapPosition[0] * maze[0].length + redTrapPosition[1]].classList.remove("trap-red");
+                redTrapPosition = newRedTrapPosition;
+                cells[redTrapPosition[0] * maze[0].length + redTrapPosition[1]].classList.add("trap-red");
+            }
+        };
+
+        setInterval(moveTrap, 300);
+
+        document.addEventListener("keydown", movePlayer);
+    </script>
+</body>
+</html>
