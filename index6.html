@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lobby - Wybór Poziomów</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .site-header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+        }
+
+        .level {
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            width: 120px;
+            margin: 10px;
+        }
+
+        .level img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .locked {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1>Wybierz Poziom Gry</h1>
+    </header>
+    <main>
+        <div class="level-selector">
+            <div class="row">
+                <div class="level">
+                    <a href="maze.html?level=1">
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157446025171189871/Koziny_odz.png?ex=6518a31c&is=6517519c&hm=d211481d61b8be22902fd98e3cc8ec63b67e3156d2b29d07853d4eaf68c12af8&" alt="Poziom 1">
+                    </a>
+                </div>
+                <div class="level">
+                    <a href="maze.html?level=2">
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157445851413741608/anime_babe_that_one.png?ex=6518a2f3&is=65175173&hm=d3c7a89314ddeb6cb123d3f939e82673fc97c5f4fa6c2aa84b2226fcba9838f3&" alt="Poziom 2">
+                    </a>
+                </div>
+                <div class="level">
+                    <a href="https://www.example.com"> <!-- Dodaj adres URL do Poziomu 3 -->
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157447080172859463/8LO.png?ex=6518a418&is=65175298&hm=621a30a52a0947f54ddb41ce9cba5fd5e98c519542f4d67958f2a6d0c9b252bf&" alt="Poziom 3">
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="level">
+                    <a href="https://www.example.com">
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157447168920125546/wiski_in_the_jar.png?ex=6518a42d&is=651752ad&hm=404011f5ecc52d6abfba9a3d609e3c5fcfdee0cb3c7e42895f56bdd8ef2b75eb&" alt="Poziom 4">
+                    </a>
+                </div>
+                <div class="level">
+                    <a href="https://www.example.com">
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157445688016240841/jarosawiec2.png?ex=6518a2cc&is=6517514c&hm=9fb718c128b40b7a2d716d26e833ceb1444565c17eff2f0e96400901dc663a5d&" alt="Poziom 5">
+                    </a>
+                </div>
+                <div class="level">
+                    <a href="https://www.example.com">
+                        <img src="https://cdn.discordapp.com/attachments/1071580076367433818/1157449230345044089/zubardz.png?ex=6518a618&is=65175498&hm=00b51bd2b65a1e58d1795e5c0807ee58ab6b4b8c6d8a86e9015c4a4f4ee05349&" alt="Poziom 6">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Twoja Strona</p>
+    </footer>
+</body>
+</html>

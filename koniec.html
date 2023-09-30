@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wszystkiego najlepszego!</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        #container {
+            position: relative;
+        }
+
+        #text {
+            font-size: 72px; /* Zwiększamy rozmiar tekstu */
+            color: #fff;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .firework {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: explode 2s ease-out infinite;
+        }
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(5);
+            }
+        }
+
+        .firework:nth-child(1) {
+            top: 50%;
+            left: 50%;
+            animation-delay: 0.1s;
+        }
+
+        .firework:nth-child(2) {
+            top: 30%;
+            left: 40%;
+            animation-delay: 0.2s;
+        }
+
+        .firework:nth-child(3) {
+            top: 40%;
+            left: 60%;
+            animation-delay: 0.3s;
+        }
+
+        .firework:nth-child(4) {
+            top: 70%;
+            left: 30%;
+            animation-delay: 0.4s;
+        }
+
+        .firework:nth-child(5) {
+            top: 70%;
+            left: 70%;
+            animation-delay: 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="text">Wszystkiego najlepszego!</div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+        <div class="firework"></div>
+    </div>
+</body>
+</html>

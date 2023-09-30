@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkour Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157438388815794247/IMG_0720.jpg?ex=65189c00&is=65174a80&hm=8439475db496227276a3fe47f4b78124e9853e46e19d1ab8868ae5155ae06797&') no-repeat center/cover;
+            bottom: 0;
+            left: 0;
+            transition: left 0.3s ease, bottom 0.3s ease;
+        }
+        .obstacle {
+            position: absolute;
+            width: 150px;
+            height: 10px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9Al-w-i6eLAz7A3Jh1C1g5y_U80AvHs2KPg&usqp=CAU') no-repeat center/cover;
+            bottom: 0;
+            left: calc(50% - 30px);
+        }
+        .movingObstacle {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157585368401575957/tex.png?ex=651924e2&is=6517d362&hm=353be5709db96d48ceec176e99ac3015fea0b8b2c331c277713e46e8732ddb5f&') no-repeat center/cover;
+			bottom: 0;
+            left: -90px;
+        }
+        .fallingObstacle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157453142846349372/meteor.png?ex=6518a9bd&is=6517583d&hm=f3b33bc2528bbc8816d0301b75fdb57bae558a3add66bc92c1931c26889cfb6b&') no-repeat center/cover;
+            bottom: 100%;
+            left: calc(50% - 30px - 100px);
+            transform: rotate(70deg);
+        }
+        .fallingObstacleRight {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157453142846349372/meteor.png?ex=6518a9bd&is=6517583d&hm=f3b33bc2528bbc8816d0301b75fdb57bae558a3add66bc92c1931c26889cfb6b&') no-repeat center/cover;
+            bottom: 100%;
+            left: calc(50% - 30px + 60px);
+            transform: rotate(70deg);
+        }
+        .fallingObstacleLeft {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157453142846349372/meteor.png?ex=6518a9bd&is=6517583d&hm=f3b33bc2528bbc8816d0301b75fdb57bae558a3add66bc92c1931c26889cfb6b&') no-repeat center/cover;
+            bottom: 100%;
+            left: calc(50% - 30px - 160px);
+            transform: rotate(70deg);
+        }
+        #finish {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+			background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157584149566193774/ikea.png?ex=651923c0&is=6517d240&hm=d5af7a62b37e7dae9904d762661a5bf631fcf179268b283384413d2d5f5abc59&') no-repeat center/cover;
+			bottom: 0;
+            right: 0;
+        }
+        .blackPillar {
+            position: absolute;
+            width: 40px;
+            height: 100px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157609498618376244/spikes.png?ex=65193b5b&is=6517e9db&hm=34fd3dbc0bfba7a5dd48c9208e925a4eb72abccecbeb8befe953af48b7caf188&') no-repeat center/cover;
+            bottom: 0;
+            left: 100px;
+        }
+        .yellowObstacle1 {
+            position: absolute;
+            width: 150px;
+            height: 120px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnQE2f_CNVTB8OpQ2212TFW9Mhr-J0uHbVVA&usqp=CAU') no-repeat center/cover;
+            bottom: 0;
+            left: 300px;
+        }
+        .yellowObstacle2 {
+            position: absolute;
+            width: 100px;
+            height: 180px;
+            background: url('https://cdn.discordapp.com/attachments/1139209266776002581/1157604968690360361/brahozaur.png?ex=65193723&is=6517e5a3&hm=3e41272a8b66720b6110629a865b770b8464152973b43fe375d966f6f592c5d6&') no-repeat center/cover;
+			bottom: 0;
+            right: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+    <div class="obstacle"></div>
+    <div class="movingObstacle"></div>
+    <div class="fallingObstacle"></div>
+    <div class="fallingObstacleRight"></div>
+    <div class="fallingObstacleLeft"></div>
+    <div id="finish"></div>
+    <div class="blackPillar"></div>
+    <div class="yellowObstacle1"></div>
+    <div class="yellowObstacle2"></div>
+    <div id="win-message" style="display: none;">Gratulacje! Przeszedłeś parkour!</div>
+    
+    <script>
+        const player = document.getElementById('player');
+        const obstacles = document.querySelectorAll('.obstacle');
+        const movingObstacle = document.querySelector('.movingObstacle');
+        const fallingObstacle = document.querySelector('.fallingObstacle');
+        const fallingObstacleRight = document.querySelector('.fallingObstacleRight');
+        const fallingObstacleLeft = document.querySelector('.fallingObstacleLeft');
+        const finish = document.getElementById('finish');
+        const blackPillar = document.querySelector('.blackPillar');
+        const yellowObstacle1 = document.querySelector('.yellowObstacle1');
+        const yellowObstacle2 = document.querySelector('.yellowObstacle2');
+
+        let canJump = true;
+        const jumpCooldownDuration = 1000;
+        let jumpCooldown = false;
+
+        let playerLeft = 0;
+        let playerBottom = 0;
+        let playerSpeedX = 0;
+        let playerSpeedY = 0;
+        let isJumping = false;
+        let jumpPower = 30;
+        let isSliding = false;
+        let slideDirection = 0;
+        const slideDuration = 500;
+        const fallSpeedMultiplier = 0.8;
+
+        function moveLeft() {
+            playerSpeedX = -5;
+        }
+
+        function moveRight() {
+            playerSpeedX = 5;
+        }
+
+        function jump() {
+            if (canJump && !isJumping) {
+                playerSpeedY = jumpPower;
+                isJumping = true;
+                canJump = false;
+
+                jumpCooldown = true;
+                setTimeout(() => {
+                    canJump = true;
+                    jumpCooldown = false;
+                }, jumpCooldownDuration);
+            }
+        }
+
+        function startSlide(direction) {
+            if (!isSliding) {
+                isSliding = true;
+                slideDirection = direction;
+                playerSpeedX = slideDirection * 10;
+            }
+        }
+
+        function stopSlide() {
+            isSliding = false;
+            playerSpeedX = 0;
+        }
+
+        function checkCollision() {
+            const playerRect = player.getBoundingClientRect();
+            obstacles.forEach(obstacle => {
+                const obstacleRect = obstacle.getBoundingClientRect();
+
+                if (
+                    playerRect.right > obstacleRect.left &&
+                    playerRect.left < obstacleRect.right &&
+                    playerRect.bottom > obstacleRect.top &&
+                    playerRect.top < obstacleRect.bottom
+                ) {
+                    resetGame();
+                }
+            });
+
+            const movingObstacleRect = movingObstacle.getBoundingClientRect();
+            if (
+                playerRect.right > movingObstacleRect.left &&
+                playerRect.left < movingObstacleRect.right &&
+                playerRect.bottom > movingObstacleRect.top &&
+                playerRect.top < movingObstacleRect.bottom
+            ) {
+                resetGame();
+            }
+
+            const fallingObstacleRect = fallingObstacle.getBoundingClientRect();
+            if (
+                playerRect.right > fallingObstacleRect.left &&
+                playerRect.left < fallingObstacleRect.right &&
+                playerRect.bottom > fallingObstacleRect.top &&
+                playerRect.top < fallingObstacleRect.bottom
+            ) {
+                resetGame();
+            }
+
+            const fallingObstacleRightRect = fallingObstacleRight.getBoundingClientRect();
+            if (
+                playerRect.right > fallingObstacleRightRect.left &&
+                playerRect.left < fallingObstacleRightRect.right &&
+                playerRect.bottom > fallingObstacleRightRect.top &&
+                playerRect.top < fallingObstacleRightRect.bottom
+            ) {
+                resetGame();
+            }
+
+            const fallingObstacleLeftRect = fallingObstacleLeft.getBoundingClientRect();
+            if (
+                playerRect.right > fallingObstacleLeftRect.left &&
+                playerRect.left < fallingObstacleLeftRect.right &&
+                playerRect.bottom > fallingObstacleLeftRect.top &&
+                playerRect.top < fallingObstacleLeftRect.bottom
+            ) {
+                resetGame();
+            }
+
+            const blackPillarRect = blackPillar.getBoundingClientRect();
+            if (
+                playerRect.right > blackPillarRect.left &&
+                playerRect.left < blackPillarRect.right &&
+                playerRect.bottom > blackPillarRect.top &&
+                playerRect.top < blackPillarRect.bottom
+            ) {
+                playerLeft = 0;
+                player.style.left = '0px';
+                playerBottom = 0;
+                player.style.bottom = '0px';
+                playerSpeedX = 0;
+                playerSpeedY = 0;
+                isJumping = false;
+            }
+
+            const yellowObstacle1Rect = yellowObstacle1.getBoundingClientRect();
+            if (
+                playerRect.right > yellowObstacle1Rect.left &&
+                playerRect.left < yellowObstacle1Rect.right &&
+                playerRect.bottom > yellowObstacle1Rect.top &&
+                playerRect.top < yellowObstacle1Rect.bottom
+            ) {
+                resetGame();
+            }
+
+            const yellowObstacle2Rect = yellowObstacle2.getBoundingClientRect();
+            if (
+                playerRect.right > yellowObstacle2Rect.left &&
+                playerRect.left < yellowObstacle2Rect.right &&
+                playerRect.bottom > yellowObstacle2Rect.top &&
+                playerRect.top < yellowObstacle2Rect.bottom
+            ) {
+                resetGame();
+            }
+
+            const finishRect = finish.getBoundingClientRect();
+            if (
+                playerRect.right > finishRect.left &&
+                playerRect.left < finishRect.right &&
+                playerRect.bottom > finishRect.top &&
+                playerRect.top < finishRect.bottom
+            ) {
+                alert('Gratulacje! Przeszedłeś parkour!');
+                resetGame();
+            }
+        }
+
+        function moveMovingObstacle() {
+            let obstacleLeft = window.innerWidth;
+            const moveSpeed = 2;
+            setInterval(() => {
+                obstacleLeft -= moveSpeed;
+                movingObstacle.style.left = obstacleLeft + 'px';
+
+                if (obstacleLeft < -movingObstacle.clientWidth) {
+                    obstacleLeft = window.innerWidth;
+                }
+            }, 10);
+        }
+
+        function moveFallingObstacle() {
+            let obstacleBottom = window.innerHeight;
+            const fallSpeed = 2 * fallSpeedMultiplier;
+            setInterval(() => {
+                obstacleBottom -= fallSpeed;
+                fallingObstacle.style.bottom = obstacleBottom + 'px';
+
+                if (obstacleBottom < -fallingObstacle.clientHeight) {
+                    obstacleBottom = window.innerHeight;
+                }
+            }, 10);
+
+            setInterval(() => {
+                obstacleBottom -= fallSpeed;
+                fallingObstacleRight.style.bottom = obstacleBottom + 'px';
+
+                if (obstacleBottom < -fallingObstacleRight.clientHeight) {
+                    obstacleBottom = window.innerHeight;
+                }
+            }, 10);
+
+            setInterval(() => {
+                obstacleBottom -= fallSpeed;
+                fallingObstacleLeft.style.bottom = obstacleBottom + 'px';
+
+                if (obstacleBottom < -fallingObstacleLeft.clientHeight) {
+                    obstacleBottom = window.innerHeight;
+                }
+            }, 10);
+        }
+
+        function updatePlayerPosition() {
+            playerSpeedY -= 1;
+            playerBottom += playerSpeedY;
+            player.style.bottom = playerBottom + 'px';
+
+            playerLeft += playerSpeedX;
+            player.style.left = playerLeft + 'px';
+
+            if (playerLeft >= window.innerWidth - player.clientWidth) {
+                const winMessage = document.getElementById('win-message');
+                winMessage.style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+
+            if (playerLeft < 0) {
+                playerLeft = 0;
+                player.style.left = '0px';
+            }
+
+            if (playerBottom <= 0) {
+                playerBottom = 0;
+                playerSpeedY = 0;
+                isJumping = false;
+            }
+
+            checkCollision();
+            requestAnimationFrame(updatePlayerPosition);
+        }
+
+        function resetGame() {
+            playerLeft = 0;
+            player.style.left = '0px';
+            playerBottom = 0;
+            player.style.bottom = '0px';
+            playerSpeedX = 0;
+            playerSpeedY = 0;
+            isJumping = false;
+            isSliding = false;
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                moveLeft();
+            } else if (event.key === 'ArrowRight') {
+                moveRight();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === ' ' && canJump) {
+                jump();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Control') {
+                startSlide(1);
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Control') {
+                startSlide(-1);
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            if (event.key === 'Control') {
+                stopSlide();
+            }
+        });
+
+        moveMovingObstacle();
+        moveFallingObstacle();
+        updatePlayerPosition();
+    </script>
+</body>
+</html>
